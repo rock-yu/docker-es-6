@@ -11,3 +11,8 @@ Elasticsearch _cat API consumable by the command line. Work with ES6+  (see http
 
     curl -s https://raw.githubusercontent.com/rock-yu/es-util/master/es.sh > /usr/local/bin/es
     chmod +x /usr/local/bin/es
+
+## show indices excluding internal monitoring/kibana indexes
+    
+    es -v indices | grep -E -v ".monitoring|.kibana"
+
