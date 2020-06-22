@@ -14,11 +14,13 @@ Available commands:
    nodes       Node stats
    heap        Heap statistics for nodes (deprecated, use "es nodes" instread)
    shards      List shards in the cluster
+   snapshots   List snapshots that belong to a repository (default to "backup_repo" or use --snapshot-repo to override)
    version     Show cluster name and current elastic build version
 
 Options:
    -u  --url <url>   elastic url (default "http://localhost:9200")
    -v  --verbose     print column headers
+   --snapshot-repo   specify repository to use by "snapshots" command
 
 EOF_USAGE
 }
@@ -30,6 +32,8 @@ command=""
 # Comma-separated list of column names to display
 headers_filter=""
 
+snapshot_repo="backup_repo"
+
 while [ "$1" != "" ]; do
     case $1 in
         -u | --url )            shift
@@ -37,11 +41,17 @@ while [ "$1" != "" ]; do
                                 ;;
         -v | --verbose )        verbose=true
                                 ;;
+        --snapshot-repo )       shift
+                                snapshot_repo=$1
+                                ;;
         -h | --help )           _usage
                                 exit
                                 ;;
         allocation | health | indices | master | shards | aliases | version)
                                 command=$1
+                                ;;
+        snapshots )
+                                command="snapshots"
                                 ;;
         nodes )
                                 command="nodes"
@@ -65,9 +75,10 @@ if [ -z "$command" ]; then
 fi
 
 if [[ "$command" = "version" ]]; then
-
   #rename number to version_number | remove quotes (") and commas (,) | removing leading/tailing spaces
   curl -s "$es_url" | grep 'cluster_name\|number' | sed 's/number/version_number/g' | tr -d '"' | tr -d ',' | tr -d ' '
+elif [[ "$command" = "snapshots" ]]; then
+    curl -s "$es_url/_cat/$command/$snapshot_repo?v=${verbose}"
 else
   curl -s "$es_url/_cat/$command?v=${verbose}${headers_filter}"
 fi
