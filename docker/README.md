@@ -1,10 +1,10 @@
 ## start 2 nodes cluster
 
-    docker-compose -f docker-compose-es-cluster.yml up -d
+    docker-compose -f docker-compose.yml up -d
 
 ## shutdown cluster
 
-    docker-compose -f docker-compose-es-cluster.yml down
+    docker-compose -f docker-compose.yml down
 
 ## handy shortcuts
 

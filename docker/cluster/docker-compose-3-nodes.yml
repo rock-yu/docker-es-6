@@ -1,0 +1,73 @@
+version: '2.2'
+services:
+  elasticsearch1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.12
+    container_name: elasticsearch1
+    environment:
+      - cluster.name=es-docker
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.minimum_master_nodes=2"
+      - "gateway.expected_data_nodes=3"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - esnet
+
+  elasticsearch2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.12
+    container_name: elasticsearch2
+    environment:
+      - cluster.name=es-docker
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch1"
+      - "discovery.zen.minimum_master_nodes=2" 
+      # [WARN ][o.e.d.z.ZenDiscovery     ] [sqNOvpr] not enough master nodes discovered during pinging (found [[Candidate{node={sqNOvpr}{sqNOvprqRA6RXBNCpleoWg}{eXrA68zDSq6nvi9IiSLsiQ}
+      - "gateway.expected_data_nodes=3"       
+       # [INFO ][o.e.g.GatewayService     ] [3I1FOoN] delaying initial state recovery for [5m]. expecting [3] data nodes, but only have [2]
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+
+  elasticsearch3:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.12
+    container_name: elasticsearch3
+    environment:
+      - cluster.name=es-docker
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch1"
+      - "discovery.zen.minimum_master_nodes=2"
+      - "gateway.expected_data_nodes=3"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata3:/usr/share/elasticsearch/data
+    networks:
+      - esnet      
+
+volumes:
+  esdata1:
+    driver: local
+  esdata2:
+    driver: local
+  esdata3:
+    driver: local
+
+networks:
+  esnet:
