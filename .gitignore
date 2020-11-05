@@ -12,6 +12,7 @@ Thumbs.db
 /.classpath
 /.idea
 *.iml
+tmp
 
 target
 /build
