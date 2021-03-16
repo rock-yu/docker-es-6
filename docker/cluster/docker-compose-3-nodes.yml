@@ -6,8 +6,11 @@ services:
     environment:
       - node.name=es01
       - cluster.name=es-docker
-      - discovery.seed_hosts=es02,es03
-      - cluster.initial_master_nodes=es01,es02,es03
+      - node.roles=master
+      # Replaced by discovery.seed_hosts in ES7, this old name is deprecated but continues to work in order to preserve backwards compatibility. Support for the old name will be removed in a future version.
+      - discovery.zen.ping.unicast.hosts=es01,es02,es03  
+      #- discovery.seed_hosts=es01,es02,es03
+      - cluster.initial_master_nodes=es01
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
@@ -28,8 +31,10 @@ services:
     environment:
       - node.name=es02
       - cluster.name=es-docker
-      - discovery.seed_hosts=es01,es03
-      - cluster.initial_master_nodes=es01,es02,es03
+      - node.roles=data
+      - discovery.zen.ping.unicast.hosts=es01,es02,es03
+      #- discovery.seed_hosts=es01,es02,es03
+      - cluster.initial_master_nodes=es01
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
@@ -47,8 +52,10 @@ services:
     environment:
       - node.name=es03
       - cluster.name=es-docker
-      - discovery.seed_hosts=es01,es02
-      - cluster.initial_master_nodes=es01,es02,es03
+      - node.roles=data
+      - discovery.zen.ping.unicast.hosts=es01,es02,es03
+      #- discovery.seed_hosts=es01,es02,es03
+      - cluster.initial_master_nodes=es01
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
