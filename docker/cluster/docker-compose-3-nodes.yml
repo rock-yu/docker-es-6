@@ -7,11 +7,49 @@ services:
       - node.name=es01
       - cluster.name=es-docker
       - node.roles=master
+
+      # Zen discovery uses a list of seed nodes in order to start off the discovery process. At startup, or when electing a new master, 
+      # Elasticsearch tries to connect to each seed node in its list, and holds a gossip-like conversation with them to find other nodes 
+      # and to build a complete picture of the cluster. By default there are two methods for configuring the list of seed nodes: unicast 
+      # and file-based. It is recommended that the list of seed nodes comprises the list of master-eligible nodes in the cluster.
+      #
+      # https://www.elastic.co/guide/en/elasticsearch/reference/6.8/modules-discovery-zen.html
       # Replaced by discovery.seed_hosts in ES7, this old name is deprecated but continues to work in order to preserve backwards compatibility. Support for the old name will be removed in a future version.
-      - discovery.zen.ping.unicast.hosts=es01,es02,es03  
+      - discovery.zen.ping.unicast.hosts=es01,es02,es03
+
+
+      # Out of the box, without any network configuration, Elasticsearch will bind to the available loopback addresses and scan local ports 9300 to 9305 to connect with other nodes running on the same server.
+      # This behavior provides an auto-clustering experience without having to do any configuration.
+      #
+      # When you want to form a cluster with nodes on other hosts, use the static discovery.seed_hosts setting. This setting provides a list of other nodes in the cluster that are master-eligible and likely
+      # to be live and contactable to seed the discovery process.
+      # https://www.elastic.co/guide/en/elasticsearch/reference/master/important-settings.html#unicast.hosts
+      # 
+      # This setting was previously known as discovery.zen.ping.unicast.hosts. Its old name is deprecated but continues to work in order to preserve backwards compatibility. Support for the old name will be 
+      # removed in a future version.
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery-settings.html
       #- discovery.seed_hosts=es01,es02,es03
+
+      # cluster.initial_master_nodes=
+      # When you start an Elasticsearch cluster for the first time, a cluster bootstrapping step determines the
+      # set of master-eligible nodes whose votes are counted in the first election.
+      #
+      # After the cluster forms successfully for the first time, remove the cluster.initial_master_nodes setting from each nodes'
+      # configuration. Do not use this setting when restarting a cluster or adding a new node to an existing cluster.
+      #
+      # Identify the initial master nodes by their node.name, which defaults to their hostname. Ensure that the value in 
+      # cluster.initial_master_nodes matches the node.name exactly. If you use a fully-qualified domain name (FQDN) such as
+      # master-node-a.example.com for your node names, then you must use the FQDN in this list. Conversely, if node.name is a 
+      # bare hostname without any trailing qualifiers, you must also omit the trailing qualifiers in cluster.initial_master_nodes.
+      # https://www.elastic.co/guide/en/elasticsearch/reference/master/important-settings.html#initial_master_nodes
       - cluster.initial_master_nodes=es01
       - bootstrap.memory_lock=true
+
+      # In production, we recommend using jvm.options.d to configure heap sizes.
+
+      # For testing, you can also set the heap sizes using the ES_JAVA_OPTS environment variable. The ES_JAVA_OPTS variable overrides 
+      # all other JVM options. We do not recommend using ES_JAVA_OPTS in production.
+      # https://www.elastic.co/guide/en/elasticsearch/reference/master/advanced-configuration.html#setting-jvm-heap-size
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
@@ -65,7 +103,7 @@ services:
     volumes:
       - esdata3:/usr/share/elasticsearch/data
     networks:
-      - esnet      
+      - esnet
 
 volumes:
   esdata1:
